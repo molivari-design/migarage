@@ -491,7 +491,7 @@ function consChart(seg){const W=320,H=130,P=24,vals=seg.map(s=>s.l100),lo=Math.f
 
 /* ---------- manual (contenido embebido, funciona sin buscar nada en internet) ---------- */
 const TOYOTA_TEL='0800-666-8696';
-const LIGHTS=[
+const LIGHTS_HILUX=[
  {c:'bad',n:'Sistema de frenos (!) / BRAKE',d:'Freno de mano puesto, nivel bajo de líquido de frenos o falla del sistema de frenado.',a:'Soltá el freno de mano. Si sigue encendida, detenete en un lugar seguro y no sigas manejando: consultá al concesionario.'},
  {c:'bad',n:'Presión de aceite',d:'La presión de aceite del motor es baja.',a:'Detenete enseguida en un lugar seguro y apagá el motor. Revisá el nivel con la varilla. No sigas manejando aunque haya aceite: pedí asistencia.'},
  {c:'bad',n:'Temperatura del motor alta',d:'El refrigerante está recalentando.',a:'Detenete, dejá el motor en ralentí con el A/C apagado unos minutos. Si no baja, apagalo. No abras la tapa del radiador con el motor caliente.'},
@@ -518,7 +518,7 @@ const LIGHTS=[
  {c:'info',n:'Luces altas',d:'Luces altas encendidas (testigo azul).',a:'Bajalas cuando venga alguien de frente.'},
  {c:'info',n:'Control de crucero',d:'Crucero activado o fijado a una velocidad.',a:'Se cancela al frenar o con la palanca.'}
 ];
-const GUIDES=[
+const GUIDES_HILUX=[
  {t:'Pasar a 4H y 4L',s:['2H ↔ 4H: se puede hacer en marcha, a velocidad moderada y yendo derecho. Girá la perilla y esperá a que el testigo 4WD deje de parpadear.','4H ↔ 4L: detené la camioneta, poné la palanca en N, girá la perilla a L4 y esperá a que el testigo 4LO quede fijo. Para volver, mismo procedimiento.','No uses 4H ni 4L en asfalto seco: la tracción 4x4 de la Hilux es para superficies de baja adherencia.'],w:'Confirmá velocidades máximas en el manual de tu versión.'},
  {t:'Bloqueo de diferencial trasero',s:['Usalo en 4L, a paso de hombre, cuando una rueda patina (arena muy blanda, barro, cruces).','Apretá el botón y esperá a que el testigo quede fijo.','Con el bloqueo puesto, doblá lo menos posible y desactivalo apenas salgas de la zona.'],w:'Con el bloqueo activado, ABS/VSC/TRC quedan limitados.'},
  {t:'Regeneración manual del DPF',s:['Estacioná en un lugar seguro y ventilado, lejos de pasto seco o cualquier material inflamable (el escape se calienta mucho).','Freno de mano puesto y palanca en P. No apagues el motor.','Apretá el botón DPF. El motor sube de vueltas solo: no toques el acelerador.','Esperá a que termine (puede tardar alrededor de media hora). Si movés la camioneta, se interrumpe.'],w:'No lo hagas en marcha. Si el DPF se enciende junto con el check engine, la regeneración puede quedar bloqueada: llevala al concesionario.'},
@@ -529,10 +529,48 @@ const GUIDES=[
  {t:'Arranque con cables',s:['Conectá rojo al + de la batería descargada y después al + de la que asiste.','Negro al − de la que asiste y el otro extremo a una parte metálica del motor de la Hilux (no al − de la batería).','Arrancá la otra unidad, esperá unos minutos y arrancá la Hilux.','Desconectá en orden inverso.'],w:''},
  {t:'Presión de neumáticos',s:['Ruta: tus valores habituales son 29 psi adelante / 33 psi atrás. Los oficiales están en la etiqueta del marco de la puerta del conductor.','Medí siempre en frío.','Arena: ~22 psi (ver la guía de arena).'],w:''}
 ];
+/* contenido genérico para autos a nafta/diésel sin 4x4 */
+const LIGHTS_BASE=[
+ {c:'bad',n:'Sistema de frenos (!) / BRAKE',d:'Freno de mano puesto, nivel bajo de líquido de frenos o falla del sistema de frenado.',a:'Soltá el freno de mano. Si sigue encendida, detenete en un lugar seguro y no sigas manejando.'},
+ {c:'bad',n:'Presión de aceite',d:'La presión de aceite del motor es baja.',a:'Detenete enseguida y apagá el motor. Revisá el nivel con la varilla. No sigas manejando: pedí asistencia.'},
+ {c:'bad',n:'Temperatura del motor alta',d:'El refrigerante está recalentando.',a:'Detenete y dejá el motor en ralentí con el A/C apagado. Si no baja, apagalo. No abras la tapa del radiador en caliente.'},
+ {c:'bad',n:'Sistema de carga (batería)',d:'El alternador no está cargando la batería.',a:'Apagá A/C, audio y accesorios, y andá directo al taller. Si además sube la temperatura, detenete: puede ser la correa.'},
+ {c:'bad',n:'Airbag (SRS)',d:'Falla en airbags o pretensores.',a:'Se puede manejar, pero los airbags podrían no funcionar. Llevalo al concesionario.'},
+ {c:'bad',n:'Dirección asistida (EPS)',d:'Falla en la dirección asistida eléctrica.',a:'El volante se va a poner duro, pero sigue funcionando. Manejá con cuidado hasta el taller.'},
+ {c:'bad',n:'Cinturón de seguridad',d:'Conductor o acompañante sin cinturón.',a:'Abrochate el cinturón.'},
+ {c:'bad',n:'Puerta abierta',d:'Alguna puerta o el baúl no está bien cerrado.',a:'Detenete y cerrá bien.'},
+ {c:'warn',n:'Check engine (falla del motor)',d:'Falla detectada en el control del motor o de emisiones.',a:'Llevalo al taller pronto. Si parpadea o el motor anda irregular, reducí la velocidad y evitá exigirlo.'},
+ {c:'warn',n:'ABS',d:'El ABS está desactivado por una falla. Los frenos funcionan, pero sin antibloqueo.',a:'Dejá más distancia de frenado y llevalo al taller.'},
+ {c:'warn',n:'Control de estabilidad / tracción (si tiene)',d:'Parpadeando: el sistema está actuando. Fijo: falla.',a:'Si parpadea, aflojá el acelerador. Si queda fijo, consultá al concesionario.'},
+ {c:'warn',n:'Combustible bajo',d:'Queda poco combustible.',a:'Cargá pronto.'},
+ {c:'warn',n:'Inmovilizador / llave',d:'El auto no reconoce la llave (parpadeo con el auto apagado es normal).',a:'Si no arranca, probá con la llave de repuesto.'},
+ {c:'warn',n:'Mantenimiento requerido',d:'Recordatorio de service o cambio de aceite.',a:'Programá el service.'},
+ {c:'warn',n:'Presión de neumáticos (si tiene)',d:'Algún neumático tiene presión baja.',a:'Revisá las presiones y buscá pinchaduras.'},
+ {c:'info',n:'Luces altas',d:'Luces altas encendidas (testigo azul).',a:'Bajalas cuando venga alguien de frente.'},
+ {c:'info',n:'Luces de posición / antiniebla',d:'Luces encendidas (testigos verde o ámbar).',a:'Informativo.'}
+];
+const LIGHTS_DIESEL=[
+ {c:'warn',n:'Precalentamiento',d:'Las bujías de precalentamiento están calentando.',a:'Esperá a que se apague antes de arrancar.'},
+ {c:'warn',n:'Agua en el filtro de combustible',d:'Hay agua en el filtro de gasoil.',a:'Hacé drenar el filtro lo antes posible.'},
+ {c:'warn',n:'DPF (filtro de partículas, si tiene)',d:'El filtro necesita regenerarse.',a:'Manejá un rato a velocidad constante por ruta o seguí el procedimiento del manual.'}
+];
+const GUIDES_BASE=[
+ {t:'Presión de neumáticos',s:['Los valores oficiales están en la etiqueta del marco de la puerta del conductor (o en la tapa del tanque).','Medí siempre en frío, antes de manejar.','Con el auto cargado o en ruta larga, usá los valores de "carga completa" de la etiqueta.'],w:''},
+ {t:'Cambio de rueda',s:['Estacioná en terreno firme, freno de mano, balizas y cuña en la rueda opuesta.','Aflojá las tuercas media vuelta con la rueda apoyada.','Levantá con el crique en el punto indicado del zócalo, cambiá la rueda y ajustá en cruz.','Bajá el auto y dá el ajuste final. Revisá la presión de la auxiliar.'],w:'Volvé a controlar el ajuste de las tuercas después de unos kilómetros.'},
+ {t:'Arranque con cables',s:['Rojo al + de la batería descargada y después al + de la que asiste.','Negro al − de la que asiste y el otro extremo a una parte metálica del motor del auto parado.','Arrancá el otro auto, esperá unos minutos y arrancá el tuyo.','Desconectá en orden inverso.'],w:''},
+ {t:'Si se recalienta',s:['Apagá el A/C y poné la calefacción al máximo: ayuda a sacar calor del motor.','Detenete en un lugar seguro y dejá el motor en ralentí; si la aguja no baja, apagalo.','Esperá a que enfríe antes de revisar el nivel de refrigerante.'],w:'Nunca abras la tapa del radiador con el motor caliente.'}
+];
+function manualKind(v){if(!v)return'nafta';if(v.manual)return v.manual;if(v.id==='hilux'||/hilux/i.test((v.name||'')+' '+(v.model||'')))return'hilux';return v.fuel==='Diésel'?'diesel':'nafta'}
+function profileOf(v){const k=manualKind(v);
+ if(k==='hilux')return{lights:LIGHTS_HILUX,guides:GUIDES_HILUX,label:'la Hilux 2.8'};
+ if(k==='diesel')return{lights:[...LIGHTS_BASE,...LIGHTS_DIESEL],guides:GUIDES_BASE,label:'un auto diésel'};
+ return{lights:LIGHTS_BASE,guides:GUIDES_BASE,label:'un auto a nafta'}}
+const isToyota=v=>/toyota/i.test((v&&v.make)||'');
+
 function lightRow(x){return'<details class="dt"><summary><span class="dot '+x.c+'"></span><span class="sm">'+esc(x.n)+'</span></summary><div class="dd"><p>'+esc(x.d)+'</p><p><b>Qué hacer:</b> '+esc(x.a)+'</p></div></details>'}
 function guideRow(g){return'<details class="dt"><summary><span class="sm">'+esc(g.t)+'</span></summary><div class="dd"><ol>'+g.s.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>'+(g.w?'<p class="wn">'+esc(g.w)+'</p>':'')+'</div></details>'}
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-function mList(q){q=norm(q);const L=LIGHTS.filter(x=>!q||norm(x.n+' '+x.d+' '+x.a).includes(q)),G=GUIDES.filter(g=>!q||norm(g.t+' '+g.s.join(' ')).includes(q));
+function mList(q){q=norm(q);const P=profileOf(V());const L=P.lights.filter(x=>!q||norm(x.n+' '+x.d+' '+x.a).includes(q)),G=P.guides.filter(g=>!q||norm(g.t+' '+g.s.join(' ')).includes(q));
  return(S.mview==='guides'?'':(S.mview?'<div style="height:12px"></div>':'<div class="h2" style="margin-top:14px">Testigos del tablero</div>')+'<div class="card" style="padding:4px 16px">'+(L.length?L.map(lightRow).join(''):'<div class="empty">Sin resultados</div>')+'</div>')+
  (S.mview==='lights'?'':(S.mview?'<div style="height:12px"></div>':'<div class="h2">Cómo se usa</div>')+'<div class="card" style="padding:4px 16px">'+(G.length?G.map(guideRow).join(''):'<div class="empty">Sin resultados</div>')+'</div>')}
 const contactsOf=vid=>recsOf(vid).filter(r=>r.type==='contact').sort((a,b)=>(a.order||0)-(b.order||0)||(a.createdAt||0)-(b.createdAt||0));
@@ -544,13 +582,13 @@ function vManual(v){const mv=S.mview||'';
   let h='<div style="margin:6px 2px 14px"><div class="pill">'+esc(v.name)+'</div><div style="font-size:26px;font-weight:800;letter-spacing:-.5px">Manual y asistencia</div></div>';
   h+='<input id="msearch" placeholder="Buscar: DPF, 4L, presión, aceite…" style="margin-bottom:12px" autocomplete="off">';
   h+='<div id="mres"></div><div id="mtiles"><div class="tiles">'+tiles.map(([k,l,ic])=>'<button class="tile" data-a="mview:'+k+'"><span class="tic">'+ic+'</span><span>'+l+'</span></button>').join('')+'</div>';
-  h+='<div class="h2">Asistencia rápida</div><div class="card">'+'<div class="row"><span class="ricon">'+I.phone+'</span><div class="main"><div class="tt">Toyota Argentina</div><div class="ss">Línea gratuita · '+TOYOTA_TEL+'</div></div><a class="btn" style="padding:8px 14px;background:var(--red);color:#fff" href="'+telHref(TOYOTA_TEL)+'">Llamar</a></div>'+contactsOf(v.id).slice(0,3).map(contactRow).join('')+'</div>';
+  h+='<div class="h2">Asistencia rápida</div><div class="card">'+(isToyota(v)?'<div class="row"><span class="ricon">'+I.phone+'</span><div class="main"><div class="tt">Toyota Argentina</div><div class="ss">Línea gratuita · '+TOYOTA_TEL+'</div></div><a class="btn" style="padding:8px 14px;background:var(--red);color:#fff" href="'+telHref(TOYOTA_TEL)+'">Llamar</a></div>':'')+contactsOf(v.id).slice(0,3).map(contactRow).join('')+'</div>';
   h+='<div class="h2">Sin conexión</div><div class="card"><div style="font-size:14px">Una vez instalada en el inicio, la app abre sin señal: testigos, guías y contactos funcionan offline, y lo que cargues se sube solo cuando vuelva la conexión. Si además querés una copia suelta, descargá la guía.</div><button class="btn" style="margin-top:12px" data-a="offline">'+I.down+' Descargar guía sin conexión</button></div></div>';
   return h}
  const titles={lights:'Testigos del tablero',guides:'Cómo se usa',help:'Asistencia y contactos',manual:'Manual completo'};
  let h='<button class="btn ghost" data-a="mview:" style="padding-left:0;margin-top:2px">‹ Manual</button><div style="font-size:26px;font-weight:800;letter-spacing:-.5px;margin:2px 2px 12px">'+titles[mv]+'</div>';
- if(mv==='lights'||mv==='guides'){h+='<input id="msearch" placeholder="Buscar…" autocomplete="off">'+(mv==='lights'?'<div class="legend" style="margin:10px 2px 0"><span><i style="background:var(--red);border-radius:50%"></i>Detenerse</span><span><i style="background:var(--warn);border-radius:50%"></i>Revisar pronto</span><span><i style="background:var(--ok);border-radius:50%"></i>Informativo</span></div>':'')+'<div id="mres">'+mList('')+'</div><div class="note">Referencia general para la Hilux 2.8. Los símbolos y detalles pueden variar según la versión: ante la duda, seguí el manual oficial.</div>';return h}
- if(mv==='help'){h+='<div class="card"><div class="row"><span class="ricon">'+I.phone+'</span><div class="main"><div class="tt">Toyota Argentina</div><div class="ss">Línea gratuita · '+TOYOTA_TEL+'</div></div><a class="btn" style="padding:8px 14px;background:var(--red);color:#fff" href="'+telHref(TOYOTA_TEL)+'">Llamar</a></div>'+contactsOf(v.id).map(contactRow).join('')+'</div>';
+ if(mv==='lights'||mv==='guides'){const P0=profileOf(v);h+='<input id="msearch" placeholder="Buscar…" autocomplete="off">'+(mv==='lights'?'<div class="legend" style="margin:10px 2px 0"><span><i style="background:var(--red);border-radius:50%"></i>Detenerse</span><span><i style="background:var(--warn);border-radius:50%"></i>Revisar pronto</span><span><i style="background:var(--ok);border-radius:50%"></i>Informativo</span></div>':'')+'<div id="mres">'+mList('')+'</div><div class="note">Referencia general para '+P0.label+'. Los símbolos y detalles pueden variar según la versión: ante la duda, seguí el manual oficial.</div>';return h}
+ if(mv==='help'){h+='<div class="card">'+(isToyota(v)?'<div class="row"><span class="ricon">'+I.phone+'</span><div class="main"><div class="tt">Toyota Argentina</div><div class="ss">Línea gratuita · '+TOYOTA_TEL+'</div></div><a class="btn" style="padding:8px 14px;background:var(--red);color:#fff" href="'+telHref(TOYOTA_TEL)+'">Llamar</a></div>':'')+contactsOf(v.id).map(contactRow).join('')+(isToyota(v)||contactsOf(v.id).length?'':'<div class="empty" style="padding:10px">Agregá el seguro, la grúa o el taller de este auto.</div>')+'</div>';
   h+='<button class="btn full sec" data-a="addcontact">'+I.plus+' Agregar contacto (seguro, grúa, gomería…)</button><div class="note">Para pedir asistencia tené a mano la patente, el número de chasis (VIN) y tu ubicación.</div>';return h}
  if(mv==='manual'){h+='<div class="card"><div style="font-size:14px;line-height:1.5">Para tener el manual completo <b>sin conexión</b>, la forma más segura es guardar el PDF en el teléfono: abrilo y usá <b>Compartir → Guardar en Archivos</b> (o en Libros). Así se abre siempre, aunque no tengas señal.</div>'+
   (v.manualUrl?'<a class="btn" style="margin-top:12px" href="'+esc(v.manualUrl)+'" target="_blank" rel="noopener">'+I.doc+' Abrir el manual</a>':'')+'<button class="btn sec" style="margin-top:12px'+(v.manualUrl?';margin-left:6px':'')+'" data-a="setmanual">'+(v.manualUrl?'Cambiar link':'Guardar link del manual')+'</button></div>';
@@ -564,9 +602,9 @@ function manualUrlForm(){const v=V();openSheet('Link del manual','<div class="fg
 async function offlineGuide(){const v=V();const cs=contactsOf(v.id);
  const css='body{font-family:-apple-system,system-ui,sans-serif;max-width:640px;margin:0 auto;padding:20px;color:#111;line-height:1.45}h1{font-size:26px;margin:0}h2{margin-top:28px;border-bottom:2px solid #e0102a;padding-bottom:4px}details{border-bottom:1px solid #e5e5e5;padding:10px 0}summary{font-weight:600;cursor:pointer}.d{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}.bad{background:#e0102a}.warn{background:#e5a000}.ok{background:#16a34a}.info{border:2px solid #999;width:6px;height:6px}.w{color:#a15c00}a{color:#e0102a}';
  const html='<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guía '+esc(v.name)+'</title><style>'+css+'</style></head><body><h1>Guía rápida · '+esc(v.name)+'</h1><p style="color:#666">Generada el '+fd(today())+'. Funciona sin conexión.</p>'+
- '<h2>Asistencia</h2><p><b>Toyota Argentina:</b> <a href="'+telHref(TOYOTA_TEL)+'">'+TOYOTA_TEL+'</a></p>'+cs.map(c=>'<p><b>'+esc(c.name)+'</b>'+(c.role?' ('+esc(c.role)+')':'')+(c.phone?' · <a href="'+esc(telHref(c.phone))+'">'+esc(c.phone)+'</a>':'')+(c.address?'<br>'+esc(c.address):'')+(c.notes?'<br>'+esc(c.notes):'')+'</p>').join('')+
- '<h2>Testigos del tablero</h2>'+LIGHTS.map(x=>'<details><summary><span class="d '+x.c+'"></span>'+esc(x.n)+'</summary><p>'+esc(x.d)+'</p><p><b>Qué hacer:</b> '+esc(x.a)+'</p></details>').join('')+
- '<h2>Cómo se usa</h2>'+GUIDES.map(g=>'<details><summary>'+esc(g.t)+'</summary><ol>'+g.s.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+(g.w?'<p class="w">'+esc(g.w)+'</p>':'')+'</details>').join('')+
+ '<h2>Asistencia</h2>'+(isToyota(v)?'<p><b>Toyota Argentina:</b> <a href="'+telHref(TOYOTA_TEL)+'">'+TOYOTA_TEL+'</a></p>':'')+cs.map(c=>'<p><b>'+esc(c.name)+'</b>'+(c.role?' ('+esc(c.role)+')':'')+(c.phone?' · <a href="'+esc(telHref(c.phone))+'">'+esc(c.phone)+'</a>':'')+(c.address?'<br>'+esc(c.address):'')+(c.notes?'<br>'+esc(c.notes):'')+'</p>').join('')+
+ '<h2>Testigos del tablero</h2>'+profileOf(v).lights.map(x=>'<details><summary><span class="d '+x.c+'"></span>'+esc(x.n)+'</summary><p>'+esc(x.d)+'</p><p><b>Qué hacer:</b> '+esc(x.a)+'</p></details>').join('')+
+ '<h2>Cómo se usa</h2>'+profileOf(v).guides.map(g=>'<details><summary>'+esc(g.t)+'</summary><ol>'+g.s.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+(g.w?'<p class="w">'+esc(g.w)+'</p>':'')+'</details>').join('')+
  '<p style="color:#888;font-size:12px;margin-top:30px">Referencia general. Ante la duda, seguí el manual oficial de Toyota.</p></body></html>';
  const fn='Guia-'+(v.name||'vehiculo').replace(/[^\w-]+/g,'-')+'.html';
  const url=URL.createObjectURL(new Blob([html],{type:'text/html'}));const a=document.createElement('a');a.href=url;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000)}
@@ -663,13 +701,13 @@ function remForm(id){const v=V();const x=id?(v.reminders||[]).find(r=>r.id===id)
 function vehForm(isNew){const v=isNew?{name:'',make:'',model:'',year:'',plate:'',fuel:'Diésel',tank:'',km:'',usage:'normal',serviceKm:10000,serviceMonths:12,lastService:{}}:V();const t=getTheme();
  let b='';if(!isNew)b+='<div class="f" style="margin-bottom:14px"><label style="display:block;font-size:12px;color:var(--mut);font-weight:600;margin:0 0 5px 2px">Apariencia</label><div class="seg" style="margin:0">'+[['auto','Sistema'],['light','Claro'],['dark','Oscuro']].map(([k,l])=>'<button type="button" class="'+(t===k?'on':'')+'" data-a="settheme:'+k+'">'+l+'</button>').join('')+'</div></div>';
  b+='<div class="fg">'+fld('name','Nombre corto',v.name,{req:1,ph:'Hilux SRX'})+fld('make','Marca',v.make,{h:1})+fld('model','Modelo / versión',v.model,{h:1})+fld('year','Año',v.year,{type:'num',h:1})+fld('plate','Patente',v.plate,{h:1})+
- fld('fuel','Combustible',v.fuel,{type:'select',h:1,opts:['Diésel','Nafta','GNC','Híbrido','Eléctrico']})+fld('tank','Tanque (L)',v.tank,{type:'num',h:1})+
+ fld('fuel','Combustible',v.fuel,{type:'select',h:1,opts:['Diésel','Nafta','GNC','Híbrido','Eléctrico']})+fld('tank','Tanque (L)',v.tank,{type:'num',h:1})+fld('manual','Contenido del manual',v.manual||'',{type:'select',opts:[['','Automático según el vehículo'],['nafta','Auto a nafta (general)'],['diesel','Auto diésel (general)'],['hilux','Toyota Hilux 2.8 (4x4, DPF)']]})+
  (isNew?fld('km','Km actuales',v.km,{type:'num',h:1,req:1})+fld('tpl','Plan de mantenimiento','nafta',{type:'select',h:1,opts:Object.entries(PLANS).map(([k,p])=>[k,p.label])}):'')+
  fld('serviceKm','Service cada (km)',v.serviceKm,{type:'num',h:1})+fld('serviceMonths','o cada (meses)',v.serviceMonths,{type:'num',h:1})+
  '<div class="f"><label style="margin-top:6px">Último service programado</label></div>'+fld('ls_nominal','Service de (km)',v.lastService?.nominal,{type:'num',h:1,ph:'20000'})+fld('ls_km','Hecho a los (km)',v.lastService?.km,{type:'num',h:1})+fld('ls_date','Fecha',v.lastService?.date||'',{type:'date',h:1})+'</div>'+acts(isNew?null:'delveh');
  if(!isNew)b+='<div style="display:flex;gap:8px;margin-top:20px"><button type="button" class="btn sec" style="flex:1" data-a="photo">Cambiar foto</button><button type="button" class="btn sec" style="flex:1" data-a="export">Copiar respaldo</button><button type="button" class="btn sec" style="flex:1" data-a="import">Importar</button></div><div style="margin-top:14px;font-size:13px;color:var(--mut)">Sesión: '+esc(S.user?S.user.email:'')+' · <button type="button" data-a="logout" style="color:var(--red);font-weight:600">Cerrar sesión</button></div>';
  openSheet(isNew?'Nuevo vehículo':'Ajustes',b,f=>{const o=isNew?{id:uid(),createdAt:Date.now(),reminders:[],plan:planFrom(fv(f,'tpl')),km:num(fv(f,'km'))||0,kmDate:today()}:clone(v);
-  Object.assign(o,{name:fv(f,'name'),make:fv(f,'make'),model:fv(f,'model'),year:num(fv(f,'year')),plate:(fv(f,'plate')||'').toUpperCase(),fuel:fv(f,'fuel'),tank:numDec(fv(f,'tank')),serviceKm:num(fv(f,'serviceKm'))||10000,serviceMonths:num(fv(f,'serviceMonths'))||12,lastService:{nominal:num(fv(f,'ls_nominal'))||0,km:num(fv(f,'ls_km'))||0,date:fv(f,'ls_date')||null}});
+  Object.assign(o,{name:fv(f,'name'),make:fv(f,'make'),model:fv(f,'model'),year:num(fv(f,'year')),plate:(fv(f,'plate')||'').toUpperCase(),fuel:fv(f,'fuel'),tank:numDec(fv(f,'tank')),manual:fv(f,'manual')||null,serviceKm:num(fv(f,'serviceKm'))||10000,serviceMonths:num(fv(f,'serviceMonths'))||12,lastService:{nominal:num(fv(f,'ls_nominal'))||0,km:num(fv(f,'ls_km'))||0,date:fv(f,'ls_date')||null}});
   if(isNew)o.plan.forEach(it=>{it.lastKm=o.lastService.km||0;it.lastDate=o.lastService.date||null});saveVehicle(o);if(isNew)setVid(o.id);toast('Guardado')})}
 
 /* foto */
