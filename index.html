@@ -676,8 +676,10 @@ function vehForm(isNew){const v=isNew?{name:'',make:'',model:'',year:'',plate:''
 function pickPhoto(){const i=$('#photoIn');i.value='';i.click()}
 $('#photoIn').addEventListener('change',e=>{const file=e.target.files[0];if(!file)return;const vid=S.vid;const url=URL.createObjectURL(file);const img=new Image();
  img.onload=()=>{let w=img.naturalWidth,h=img.naturalHeight,mx=1000;const sc=Math.min(1,mx/Math.max(w,h));const c=document.createElement('canvas');
-  const enc=s=>{c.width=Math.round(w*s);c.height=Math.round(h*s);const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);let d=c.toDataURL('image/webp',.82);if(!d.startsWith('data:image/webp'))d=c.toDataURL('image/jpeg',.82);return d};
-  let s=sc,d=enc(s);while(d.length>230000&&s>.2){s*=.75;d=enc(s)}URL.revokeObjectURL(url);savePhoto(vid,d);closeSheet();toast('Foto actualizada')};
+  const draw=s=>{c.width=Math.max(1,Math.round(w*s));c.height=Math.max(1,Math.round(h*s));const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);return x};
+  const hasAlpha=(()=>{const x=draw(Math.min(1,200/Math.max(w,h)));const px=x.getImageData(0,0,c.width,c.height).data;for(let i=3;i<px.length;i+=4)if(px[i]<250)return true;return false})();
+  const enc=s=>{draw(s);let d=c.toDataURL('image/webp',.82);if(d.startsWith('data:image/webp'))return d;return hasAlpha?c.toDataURL('image/png'):c.toDataURL('image/jpeg',.82)};
+  let s=sc,d=enc(s);while(d.length>230000&&s>.15){s*=.8;d=enc(s)}URL.revokeObjectURL(url);savePhoto(vid,d);closeSheet();toast('Foto actualizada')};
  img.onerror=()=>toast('No se pudo leer la imagen');img.src=url});
 
 /* ---------- eventos ---------- */
