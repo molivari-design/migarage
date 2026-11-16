@@ -1,5 +1,5 @@
 // Service worker: guarda la app para que abra sin conexión.
-const VERSION = 'mi-garage-v3';
+const VERSION = 'mi-garage-v4';
 const SHELL = ['/', '/index.html', '/config.js', '/vendor/supabase.js', '/manifest.webmanifest',
   '/icons/icon-180.png', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/hilux.webp'];
 
