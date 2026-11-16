@@ -264,15 +264,15 @@ function stripId(o){const{id,...b}=o;return b}
 function applyItem(kind,id,data){if(kind==='vehicle'){if(data)S.vehicles[id]={...data,id};else delete S.vehicles[id]}
  else if(kind==='record'){if(data)S.records[id]={...data,id};else delete S.records[id]}
  else if(kind==='photo'){if(data)S.photos[id]=data.data;else delete S.photos[id]}}
-function enqueue(op){const q=qLoad().filter(x=>!(x.kind===op.kind&&x.id===op.id));q.push(op);qSave(q);cacheSave();flush()}
+function enqueue(op){op.qid=uid();const q=qLoad().filter(x=>!(x.kind===op.kind&&x.id===op.id));q.push(op);qSave(q);cacheSave();flush()}
 const isNetErr=e=>!navigator.onLine||/fetch|network|Failed|Load failed|timeout/i.test(String(e&&(e.message||e)));
-async function flush(){if(flushing||!SB||!S.user)return;flushing=true;let q=qLoad();
- while(q.length){const op=q[0];let error=null;
+async function flush(){if(flushing||!SB||!S.user)return;flushing=true;
+ try{for(;;){const q=qLoad();if(!q.length)break;const op=q[0];let error=null;
   try{if(op.t==='upsert'){({error}=await SB.from(TABLE).upsert({kind:op.kind,id:op.id,data:op.data,updated_at:new Date().toISOString(),updated_by:S.user.email}))}
    else{({error}=await SB.from(TABLE).delete().match({kind:op.kind,id:op.id}))}}catch(e){error=e}
   if(error){if(isNetErr(error))break;console.error(error);toast('No se pudo guardar un cambio: '+(error.message||'error'))}
-  q.shift();qSave(q)}
- flushing=false;S.pending=qLoad().length;renderHdr()}
+  {const cur=qLoad();const i=op.qid?cur.findIndex(x=>x.qid===op.qid):cur.findIndex(x=>!x.qid&&x.kind===op.kind&&x.id===op.id);if(i>=0)cur.splice(i,1);qSave(cur)}}}
+ finally{flushing=false;S.pending=qLoad().length;renderHdr()}}
 function saveVehicle(v){v=clone(v);v.updatedAt=Date.now();S.vehicles[v.id]=v;render();enqueue({t:'upsert',kind:'vehicle',id:v.id,data:stripId(v)})}
 function savePhoto(vid,data){if(data)S.photos[vid]=data;else delete S.photos[vid];render();enqueue(data?{t:'upsert',kind:'photo',id:vid,data:{data}}:{t:'delete',kind:'photo',id:vid})}
 function delVehicle(id){delete S.vehicles[id];const rs=Object.values(S.records).filter(r=>r.vid===id);rs.forEach(r=>delete S.records[r.id]);delete S.photos[id];pickVid(true);render();
